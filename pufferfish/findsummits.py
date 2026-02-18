@@ -18,7 +18,7 @@ from pk2txt import bdgmsg, newmsg
 from normalize import *
 from pybedtools import *
 from pybedtools.featurefuncs import greater_than
-import cStringIO as StringIO
+from io import StringIO
 
 
 def find_candidate_regions(states, thresh_state=1, merge1=10e3, minwidth=50e3, merge2=40e3, max_state_thresh=2, internal=0.8):
@@ -114,9 +114,9 @@ def run(parser, args):
         regions = find_candidate_regions(args.states, thresh_state=1, merge1=10e3, minwidth=50e3, merge2=40e3, max_state_thresh=2, internal=0.8)
 
     ##Covert CovBed object to BedTool object
-    a = BedTool( StringIO.StringIO( protocol.late.get_bdg(bdg=protocol.late.count, collapsed=True) ) )
+    a = BedTool( StringIO( protocol.late.get_bdg(bdg=protocol.late.count, collapsed=True) ) )
     ans = summits(a = a, b = regions)
-    print str(ans).strip()
+    print(str(ans).strip())
 
 ####print "Loading..."
 ##states = sys.argv[1]

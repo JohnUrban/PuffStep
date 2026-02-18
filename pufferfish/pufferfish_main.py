@@ -1129,7 +1129,7 @@ This must have same number of states represented as state means (--mu; default 7
     ## attempt to run args.func (which calls run_subtool() for all), catch errors
     try:
         args.func(parser, args)
-    except IOError, e:
+    except IOError as e:
         ## often pipe will break for various reasons and will raise sigpipe error
         ## can import errno and do "if e.errno != errno.EPIPE:"
         ##   but errno.EPIPE = 32 -- so just use 32 here

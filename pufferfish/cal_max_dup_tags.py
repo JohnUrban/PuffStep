@@ -13,7 +13,7 @@ def binomial_cdf_inv ( cdf, a, b ):
 
     cdf2 = 0
 
-    for x in xrange(0,a+1):
+    for x in range(0,a+1):
         pdf = binomial_pdf (x,a,b)
         cdf2 += pdf
         if cdf < cdf2:
@@ -51,7 +51,7 @@ def binomial_pdf( x, a, b ):
         mx=a-x
     pdf=1
     t = 0
-    for q in xrange(1, mn+1):
+    for q in range(1, mn+1):
         pdf *= (a-q+1)*p/(mn-q+1)
         if pdf < 1e-100:
             while pdf < 1e-3:
@@ -62,7 +62,7 @@ def binomial_pdf( x, a, b ):
                 pdf *= 1-p
                 t += 1
 
-    for i in xrange(mx-t):
+    for i in range(mx-t):
         pdf *= 1-p
         
     pdf=float("%.10e" % pdf)

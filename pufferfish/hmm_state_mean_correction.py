@@ -121,7 +121,7 @@ for chrom in states.chromosomes:
         stateobs[state] += 1.0
 ## MEANS: Divide Sum of data over each state by number of times the state was observed.
 statemeans = defaultdict(float)
-for state, n in stateobs.iteritems():
+for state, n in stateobs.items():
     statemeans[state] = statesum[state] / float(n)
 
 ## NORMALIZE BY STATE MEANS

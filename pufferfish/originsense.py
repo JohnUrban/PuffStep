@@ -312,54 +312,54 @@ if not args.altoutput:
     ##TODO
     # P(A|B) = P(A,B)/P(B); P(B|A) = P(A,B)/P(A)
     ## A,B independent if P(A|B) = P(A), P(B|A) = P(B), and P(A,B) = P(A)P(B)
-    print "Prevalence\tP(A)\t" + str(pA) + "\tExp_PPV_and_Exp_FOR"
-    print "PositiveRate\tP(B)\t" + str(pB) + "\tExp_SN_and_Exp_FPR"
-    print "Product\tP(A)P(B)\t" + str(pA*pB) + "\tExp_joint"
-    print "Conditional_P(A|B)\tP(B|A)P(A)/P(B)\t" + str(SN*pA/pB)
-    print "Conditional_P(B|A)\tP(A|B)P(B)/P(A)\t" + str(PPV*pB/pA)
-    print "Joint_P(A,B)\tP(B|A)P(A)\t" + str(SN*pA)
-    print "Joint_P(A,B)\tP(A|B)P(B)\t" + str(PPV*pB)
-    print "Union\tP(A)+P(B)-P(A,B)\t"+ str(pA+pB-SN*pA)
-    print "Exp_Union\tP(A)+P(B)-P(A)p(B)\t"+ str(pA+pB-(pA*pB))
-    print "ExpJaccard\tP(A)P(B)/(P(A)+P(B)-P(A)P(B))\t" + str((pA*pB/(pA+pB-(pA*pB))))
-    print "ObsJaccard\tP(A,B)/P(AUB)\t" + str((SN*pA) / (pA+pB-SN*pA))
-    print "Exp_FDR\tP(Ac)\t" + str(pAc) + "\t" + str("Exp_NPV")
-    print "Exp_SP\tP(Bc)\t" + str(pBc) + "\t" + str("Exp_FNR")
-    print "Exp_F_score\t2*(Exp_SN*Exp_PPV)/(Exp_SN+Exp_PPV)\t" + str(2.0*(pA*pB)/(pA+pB))
+    print("Prevalence\tP(A)\t" + str(pA) + "\tExp_PPV_and_Exp_FOR")
+    print("PositiveRate\tP(B)\t" + str(pB) + "\tExp_SN_and_Exp_FPR")
+    print("Product\tP(A)P(B)\t" + str(pA*pB) + "\tExp_joint")
+    print("Conditional_P(A|B)\tP(B|A)P(A)/P(B)\t" + str(SN*pA/pB))
+    print("Conditional_P(B|A)\tP(A|B)P(B)/P(A)\t" + str(PPV*pB/pA))
+    print("Joint_P(A,B)\tP(B|A)P(A)\t" + str(SN*pA))
+    print("Joint_P(A,B)\tP(A|B)P(B)\t" + str(PPV*pB))
+    print("Union\tP(A)+P(B)-P(A,B)\t"+ str(pA+pB-SN*pA))
+    print("Exp_Union\tP(A)+P(B)-P(A)p(B)\t"+ str(pA+pB-(pA*pB)))
+    print("ExpJaccard\tP(A)P(B)/(P(A)+P(B)-P(A)P(B))\t" + str((pA*pB/(pA+pB-(pA*pB)))))
+    print("ObsJaccard\tP(A,B)/P(AUB)\t" + str((SN*pA) / (pA+pB-SN*pA)))
+    print("Exp_FDR\tP(Ac)\t" + str(pAc) + "\t" + str("Exp_NPV"))
+    print("Exp_SP\tP(Bc)\t" + str(pBc) + "\t" + str("Exp_FNR"))
+    print("Exp_F_score\t2*(Exp_SN*Exp_PPV)/(Exp_SN+Exp_PPV)\t" + str(2.0*(pA*pB)/(pA+pB)))
     ## Accuracy = (sensitivity) (prevalence) + (specificity) (1 - prevalence) = P(B|A)*P(A) + P(Bc|Ac)*P(Ac) = P(A,B)+P(Ac,Bc) = pA*pB+pAc*pBc
-    print "Exp_Accuracy\tp(A)*p(B)+p(Ac)*p(Bc)\t" + str(pA*pB+pAc*pBc)
+    print("Exp_Accuracy\tp(A)*p(B)+p(Ac)*p(Bc)\t" + str(pA*pB+pAc*pBc))
     outmsg = ("\n").join([name+"\t"+altnames[name]+"\t"+str(scores[name]) for name in scorenames])
-    print outmsg
+    print(outmsg)
 
 
 
     ##print "P(Ac) P(Bc) P(A,Bc) ... etc...."
 
-    print "BEDtoolsKnownJaccard\tIntersect/Union\t" + str(orijaccard)
-    print "BEDtoolsPeakJaccard\tIntersect/Union\t" + str(peaksjaccard)
-    print "ProbJaccard\tP(A,b)/P(AUB)\t" + str((SN*pA) / (pA+pB-SN*pA))
-    print "Fisher_AB\tExactTestPvalue\t" + str(orisfisher)
-    print "Fisher_BA\tExactTestPvalue\t" + str(peaksfisher)
-    print "ROC\tx,y\t" + str(FPR)+","+str(SN)
+    print("BEDtoolsKnownJaccard\tIntersect/Union\t" + str(orijaccard))
+    print("BEDtoolsPeakJaccard\tIntersect/Union\t" + str(peaksjaccard))
+    print("ProbJaccard\tP(A,b)/P(AUB)\t" + str((SN*pA) / (pA+pB-SN*pA)))
+    print("Fisher_AB\tExactTestPvalue\t" + str(orisfisher))
+    print("Fisher_BA\tExactTestPvalue\t" + str(peaksfisher))
+    print("ROC\tx,y\t" + str(FPR)+","+str(SN))
 else:
-    print "Num A", numOris
-    print "Mean A width", meanOriWidth
+    print("Num A", numOris)
+    print("Mean A width", meanOriWidth)
 
-    print "Num B", numPeaks 
-    print "Mean B width", meanPeakWidth
+    print("Num B", numPeaks)
+    print("Mean B width", meanPeakWidth)
 
 
-    print "G size", genomeSize
-    print "Num Components in G", numConnectedComponents
+    print("G size", genomeSize)
+    print("Num Components in G", numConnectedComponents)
 
-    print
-    print "Num A overlap B", numOrisOverlapPeaks 
-    print ori_ovlp_peak
+    print()
+    print("Num A overlap B", numOrisOverlapPeaks)
+    print(ori_ovlp_peak)
     
 
-    print
-    print "Num B overlap A", numPeaksOverlapOris
-    print peak_ovlp_ori
+    print()
+    print("Num B overlap A", numPeaksOverlapOris)
+    print(peak_ovlp_ori)
 
 
 #NOTE: ROC curves are x vs y = FPR vs Sensitivity (TPR)

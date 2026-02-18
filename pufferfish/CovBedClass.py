@@ -881,13 +881,13 @@ class CovBed(object):
                     add = minlocalbins - nl
                     r += add
                     if r > n-1: ## CATCH -- this shouldn't happen
-                        print "WARN: get_params_from_local_medRatioNorm_dict_with_glocalweighting #1"
+                        print("WARN: get_params_from_local_medRatioNorm_dict_with_glocalweighting #1")
                         r = n-1
                 if r == n-1:
                     sub = minlocalbins - nr
                     l -= sub
                     if l < 0: ## CATCH -- this shouldn't happen
-                        print "WARN: get_params_from_local_medRatioNorm_dict_with_glocalweighting #2"
+                        print("WARN: get_params_from_local_medRatioNorm_dict_with_glocalweighting #2")
                         l = 0
                 bins =  [latecovs[j] for j in range(l,r)] 
             else:
@@ -918,7 +918,7 @@ class CovBed(object):
                 else:
                     finiteloop-=1
                     if finiteloop <= 0:
-                        print "WARN: get_params_from_local_medRatioNorm_dict_with_glocalweighting #3"
+                        print("WARN: get_params_from_local_medRatioNorm_dict_with_glocalweighting #3")
                         break
 
 

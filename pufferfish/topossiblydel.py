@@ -90,11 +90,11 @@ sys.stderr.write( str(g.files) +"\n")
 
 g.discretize_cor_values()
 for chrom in g.chromosomes:
-    print g.dcorscores[chrom][:20]
-    print g.corscores[chrom][:20]
-    print min(g.dcorscores[chrom]), max(g.dcorscores[chrom])
-    print min(g.corscores[chrom]), max(g.corscores[chrom])
-    print
+    print(g.dcorscores[chrom][:20])
+    print(g.corscores[chrom][:20])
+    print(min(g.dcorscores[chrom]), max(g.dcorscores[chrom]))
+    print(min(g.corscores[chrom]), max(g.corscores[chrom]))
+    print()
 quit()
 ##sys.stderr.write(str(datetime.datetime.now()) +": ..initializing...\n")
 ##g = MultiCovBed(sys.argv[1])
@@ -120,7 +120,7 @@ quit()
 ##    pickle.dump(g, pkfile)
 
 sys.stderr.write(str(datetime.datetime.now()) +": ..printing viterbi state paths...\n")
-print g.get_cor_state_bdg()
+print(g.get_cor_state_bdg())
 
 ##sys.stderr.write(str(datetime.datetime.now()) +": ..estimating eFDR...\n")
 ##g.ntest = None

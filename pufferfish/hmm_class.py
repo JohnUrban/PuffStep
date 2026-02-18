@@ -17,17 +17,17 @@ def get_geom_fxn(self):
     return
 
 
-puff.exponential <- function(x, emissions){
-  dexp(x = x, rate = emissions[1, ], log = FALSE)
-}
-
-puff.poisson <- function(x, emissions){
-  dpois(x = round(x), lambda = emissions[1, ], log = FALSE)
-}
-
-puff.geometric <- function(x, emissions){
-  dgeom(x = round(x), prob = emissions[1, ], log = FALSE)
-}
+# puff.exponential <- function(x, emissions){
+#   dexp(x = x, rate = emissions[1, ], log = FALSE)
+# }
+# 
+# puff.poisson <- function(x, emissions){
+#   dpois(x = round(x), lambda = emissions[1, ], log = FALSE)
+# }
+# 
+# puff.geometric <- function(x, emissions){
+#   dgeom(x = round(x), prob = emissions[1, ], log = FALSE)
+# }
 
 
 
@@ -101,13 +101,13 @@ class HMM(object):
             self.transition_probs = np.zeros([nstates, nstates])
             # make prefix-suffix dict -- overlaps of k-1 and k-2
             prefix = defaultdict(list)
-            for i in xrange(nstates):
+            for i in range(nstates):
                 pref = self.states[i][:k-1]
                 prefix[pref].append(i)
                 pref = self.states[i][:k-2]
                 prefix[pref].append(i)
             # create transition probs -- can soft code the sampling parameters later if want
-            for i in xrange(nstates):
+            for i in range(nstates):
                 ## overlap by k-1 (move = 1)
                 current_suffix = self.states[i][1:]
                 poisson = np.random.poisson(lam=365.0, size=k-1)
@@ -132,14 +132,14 @@ class HMM(object):
         ## result is n pairs of state mus and sigmas.
         nstates = len(self.states)
         self.emission_probs = np.zeros([2, nstates])
-        for i in xrange(nstates):
+        for i in range(nstates):
             self.emission_probs[0,i] = np.random.normal(mu_mean, mu_sd)
             self.emission_probs[1,i] = abs(np.random.normal(sigma_mean, sigma_sd))
 
     def randomize_statepath(self, length=10):
         nstates = len(self.states)
         self.statepath = [np.random.choice(nstates, p=self.initial_probs)]
-        for _ in xrange(length-1):
+        for _ in range(length-1):
             self.statepath.append(
                     np.random.choice(
                             nstates,
@@ -175,7 +175,7 @@ class HMM(object):
         scalefactors[1,0] = np.log(scalefactors[0,0])
         Forward[:,0] /= scalefactors[0,0]
         # iterate
-        for k in xrange(1, nemits):
+        for k in range(1, nemits):
             emit = ep.pdf(self.emissions[k])
             Forward[:,k] = np.multiply(emit, np.dot(Forward[:,k-1], self.transition_probs))
             scalefactors[0,k] = sum(Forward[:,k])
@@ -205,7 +205,7 @@ class HMM(object):
         scalefactors[1,end] = np.log(scalefactors[0,end])
         Backward[:,end] /= scalefactors[0,end]
         # iterate
-        for k in xrange(end-1, -1, -1):
+        for k in range(end-1, -1, -1):
             emit = ep.pdf(self.emissions[k+1])
             a = np.multiply(Backward[:,k+1], emit).transpose()
             Backward[:,k] = np.dot(self.transition_probs, a).transpose()
@@ -230,7 +230,7 @@ class HMM(object):
         nstates = self.get_num_states()
         nemits = np.shape(self.Forward)[1]
         self.posterior_path = np.zeros(nemits, dtype=int)
-        for i in xrange(nemits):
+        for i in range(nemits):
             fb = self.Forward[:,i] * self.Backward[:,i]
             self.posterior_path[i] = int(fb.argmax())
         return self.posterior_path

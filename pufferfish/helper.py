@@ -85,4 +85,4 @@ awk '$4>1' cn.stage5.withearly.bedGraph | mergeBed -d 10000 -i - -c 4 -o median 
 
 
     '''
-    print help_msg
+    print(help_msg)

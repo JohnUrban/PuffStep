@@ -5,11 +5,11 @@ from scipy.stats import geom
 from Bio import SeqIO
 
 def killmsg():
-    print "Kill Error: Reached a sequence of different length than previous sequences."
-    print "Sequence length established as:", seqLen
-    print "Sequence name:", currentHeader
-    print "Sequence number:", seqCount
-    print "Sequence length:", len(sequence)
+    print("Kill Error: Reached a sequence of different length than previous sequences.")
+    print("Sequence length established as:", seqLen)
+    print("Sequence name:", currentHeader)
+    print("Sequence number:", seqCount)
+    print("Sequence length:", len(sequence))
     quit()
     
 def addToPfm(seqLen, sequence, posFreqMatDict, seqCount):
@@ -190,7 +190,7 @@ def pfmFromPfmDict(posFreqMatDict):
         orderedBases += e
         header += e+"\t"
     header = header[:-1]
-    print header
+    print(header)
 
     ## 4. write out such that each line is equal to current position
     for i in range(len(posFreqMatDict.keys())):
@@ -198,7 +198,7 @@ def pfmFromPfmDict(posFreqMatDict):
         for b in orderedBases:
             line += str(posFreqMatDict[i][b])+"\t"
         line = line[:-1]
-        print line
+        print(line)
 
 def pfmConsensus(posFreqMatDict, verbose=False):
     ''' Returns max of A,C,G,T -- if tie, it randomly selects one'''
