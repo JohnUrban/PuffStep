@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 import os.path
 import sys
 import argparse
@@ -17,24 +17,12 @@ def run_subtool(parser, args):
     ## the function to be used in subparser.set_defaults(func=func)
     ## it selects the module that the sub-parser is made for
     ## then uses the "run" function in that module
-    if args.command == 'mapreads':
-        import mapreads as submodule
-    elif args.command == 'getcov':
-        import getcov as submodule
-    elif args.command == 'findpuffs':
-        import findpuffs as submodule
-    elif args.command == 'dump':
-        import pk2txt as submodule
-    elif args.command == 'puffcn':
+    if args.command == 'puffcn':
         import cn as submodule
-    elif args.command == 'puffcnpy':
-        import cnpy as submodule
     elif args.command == 'summits':
         import findsummits as submodule
     elif args.command == 'normalize':
         import normalize as submodule
-    elif args.command == 'hmm':
-        import generalhmm as submodule
     elif args.command == 'generate':
         import generate as submodule
     elif args.command == 'filter':
@@ -70,190 +58,6 @@ def main():
                         version='%(prog)s ' + pfv)#str(pufferfish.version.__version__))
     subparsers = parser.add_subparsers(title='[sub-commands]', dest='command',
                                        parser_class=ArgumentParserWithDefaults)
-
-
-    ## Create a sub-command parser for mapreads
-    parser_mapreads = subparsers.add_parser('mapreads',
-                                            help='''Depends on Bowtie2 and SAMtools.
-Maps fasta/fastq files to genome (can provide bt2 index or fasta reference (which will first be converted to bt2 index).
-Maps reads to genome and filters out unmapped reads before sorting and indexing.''')
-    parser_mapreads.add_argument('fastxfiles', metavar='fastxfiles', nargs='+', type=str,
-                                 help='''Paths to as many fasta/fastq files as youd like to map. Can be gz or bz2.''')
-    parser_mapreads_reftype = parser_mapreads.add_mutually_exclusive_group(required=True)
-    parser_mapreads_reftype.add_argument('-b', '--bt2', type=str,
-                               help='''Path to bt2 index prefix.''')
-    parser_mapreads_reftype.add_argument('-r', '--ref_fasta', type=str,
-                               help='''Path to reference fasta. A bt2 index will be generated in same dir.''')
-    parser_mapreads.add_argument('--threads', '-p', type=int, default=1, help='''Number of parallel threads for bowtie2 to use. Default: 1.''')
-
-    parser_mapreads.add_argument('--dry', action='store_true', default=False, help='''Only writes out the commands that will be used if set.''')
-
-    parser_mapreads.set_defaults(func=run_subtool)
-
-
-##    ## Create a sub-command parser for filterdup
-##    parser_mapreads = subparsers.add_parser('filterdup',
-##                                            help='''Depends on Picard Tools 2.1.1, BEDtools, pybedtools, pysam.
-##Remove optical duplicates and marks PCR duplicates.
-##All PCR duplicates except K at a given site are removed.
-##K is determined by a binomial calculuation using a bin size and number of reads in a given bin.
-##Then any duplicates in that bin are subject to filtering down to K.
-##1. Remove optical duplicates and mark PCR duplicates.
-##2. Make bins
-##3. Get read count in those bins
-##4. For each bin, check if there are marked reads. If so, calculate K and filter.
-##5. write remaining reads as you go...
-##''')
-##    parser_filterdup.add_argument('bams', metavar='bams', nargs='+',
-##                               type=str,
-##                               help=''' Paths to BAM files that need duplicate filtering.''')
-##    parser_filterdup.add_argument('-g', '--genome', type=str,
-##                               help='''Path to BEDtools genome file describing reference reads were mapped to.''')
-##    parser_filterdup.add_argument()
-##    parser_filterdup.add_argument('--dry', action='store_true', default=False, help='''Only writes out the commands that will be used if set.''')
-##
-##    parser_filterdup.set_defaults(func=run_subtool)
-##    
-
-    ## Create sub-command parser for getcov
-    ## TODO add filterdup possibility from macs2... rm pcr dups
-    parser_getcov = subparsers.add_parser('getcov',
-                                          help=''' Depends on SAMtools and BEDtools.''')
-    parser_getcov.add_argument('bams', metavar='bams', nargs='+',
-                               type=str,
-                               help=''' Paths to as many bam files as you need to get coverage for.
-Can include a file-of-filenames (FOFN) and tarballs as well.''')
-    
-    parser_getcov.add_argument('-f','--filterdup', type=str,
-                               help='''Provide /path/to/picard.jar  (picard v2.1.1 or higher)''')
-    parser_getcov.add_argument('-g', '--genome', type=str, required=True,
-                               help='''Path to file.genome as needed and defined by BEDTools. See "bedtools makewindows" or "bedtools coverage"''')
-    parser_getcov.add_argument('-w', '--window', type=str, default='500',
-                               help='''Integer window size - will be counting in windows of this size. Default: 500.''')
-    parser_getcov.add_argument('-s', '--step', type=str, default='500',
-                               help='''Integer step size - will slide window over this much. Default: 500.''')
-    parser_getcov.add_argument('-Q', '--mapq', type=str, default='0',
-                               help='''Integer mapq cut-off - only include reads with mapping quality >= INT. Default: 0.''')
-    parser_getcov.add_argument('-m', '--picardmem', type=str, default='4g',
-                               help='''Provide memory needed/available to Picard MarkDuplicates as integer_letter string, such as 500m, 1g, 2g, 64g, etc. Default: 4g.''')
-    parser_getcov.add_argument('--keepopt',action='store_true', default=False, help='''Optical duplicates are removed by default. This flag says to mark them instead.''')
-    parser_getcov.add_argument('--rmdup',action='store_true', default=False, help='''PCR duplicates are marked by default. This flag will result in removing them (as well as optical duplicates).''')
-    parser_getcov.add_argument('--dry',action='store_true', default=False, help='''Only writes out the commands that will be used if set.''')
-    parser_getcov.add_argument('--clean',action='store_true',default=False,help='''Remove intermediate files... Default: False.''')
-    parser_getcov.add_argument('--force',action='store_true',default=False,help='''Ignore assertions. Good for made-up filenames when debugging in dry-runs. Do not use this for real run. Default: False.''')
-    parser_getcov.set_defaults(func=run_subtool)
-
-
-
-
-
-
-
-
-
-
-
-    ## Create sub-command parser for findpuffs
-    parser_findpuffs = subparsers.add_parser('findpuffs',
-                                             help='''Take in getcov bedGraphs, do stuff.''')
-    parser_findpuffs_input = parser_findpuffs.add_mutually_exclusive_group(required=True)
-    parser_findpuffs_input.add_argument('-i','--input', type=str,
-                                  help='''Input file -- a tab-sep file with 2 columns (stage number, filename) with a single line for all getcov bedGraph files you wish to include.
-Example:
-1\tstage1.bedGraph''')
-    parser_findpuffs_input.add_argument('-ip','--inpickle', type=str,
-                                        help='''Pickle file (e.g. data.pk) containing already processed getcov bedGraphs as MultiCovBed object.''')
-
-    parser_findpuffs.add_argument('-op','--outpickle', type=str, default='data.fp.pk',
-                                        help='''Name for output pickle file (e.g. data.fp.pk.gz) that will contain the MultiCovBed object made when this is run.
-Pickled data is automatically gzipped. If .gz not at end of given filename, it will be added.
-If the filename exists it will be erased and written over.
-Default: data.fp.pk.gz''')
-    
-    parser_findpuffs.add_argument('-s1', '--smoothbeforemedian', default=False, type=int,
-                                  help='''Smooth counts in bins before finding the median bin counts (and before median normalization).
-Must provide integer window size to smooth in (should be longer than bin size)
--- e.g. if bin size = 500, smoothing bandwidth could be 10000.
-One probably should not do both --smoothbeforemedian and --smoothbeforecor. Pick one or none.''')
-    parser_findpuffs.add_argument('-s2', '--smoothbeforecor', default=False, type=int,
-                                  help='''Smooth counts in bins after median normalization, but before finding correlations in each bin.
-Must provide integer window size to smooth in (should be longer than bin size)
--- e.g. if bin size = 500, smoothing bandwidth could be 10000.
-One probably should not do both --smoothbeforemedian and --smoothbeforecor. Pick one or none.''')
-
-    parser_findpuffs.add_argument('-bw', '--corsmoothbandwidth', type=int, default=15000,
-                                  help='''For smoothing correlation scores. Provide integer window size to smooth in (should be longer than bin size)
--- e.g. if bin size = 500, smoothing bandwidth could be 10000. Default: 15000.''')
-
-    parser_findpuffs.add_argument('-mep', '--max_empty_bin_pct', type=float, default=0.4,
-                                  help='''For filtering contigs out, contig is allowed to have up to X (proportion between 0 and 1) bins with 0 coverage. Default: 0.4.''')
-
-    parser_findpuffs.add_argument('-mop', '--max_offending_samples_pct', type=float, default=0.4,
-                                  help='''For filtering contigs out, contig is allowed to exceed max_empty_bin_pct in Y (proportion between 0 and 1) of the samples. Default: 0.4.''')
-
-
-    parser_findpuffs.set_defaults(func=run_subtool)
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    ## Create sub-command for dump
-    parser_dump = subparsers.add_parser('dump',
-                                                help=''' Take in pickled object containing MultiCovBed object where statepath has been found.
-Output bedGraph of statepath and/or BED file containing coordinates of states.''')
-    parser_dump.add_argument('-ip', '--inpickle', type=str, required=True,
-                                    help='''Path to input pickle.''')
-    parser_dump.add_argument('-p','--prefix', type=str, required=True,
-                                     help='''Output files with provided --prefix''')
-    parser_dump.add_argument('-c', '--counts', default=False, action='store_true',
-                             help='''Output counts as expanded single-step, bedGraph-like file. Counts will be normalized.
-Columns 4+ will have counts from files in order files were given.
-Can use this with awk to create bedGraphs for each -- e.g. for i in {4..8}; do awk -v "i=$i" 'OFS="\t" {print $1,$2,$3,$i}' q30.w500.s500.default.counts.bedGraph > q30.w500.s500.default.counts.$i.bedGraph; done ''')
-    parser_dump.add_argument('-fc', '--filtered_counts', default=False, action='store_true',
-                             help='''Output counts from filtered contigs as expanded single-step, bedGraph-like file. Counts will likely NOT be normalized (as filtereing is done prior to median normalization).
-Columns 4+ will have counts from files in order files were given.
-Can use this with awk to create bedGraphs for each -- e.g. awk 'OFS="\t" {print $1,$2,$3,$4}' filtered_counts.bedGraph > file.filtered_counts.bedGraph ''')
-    parser_dump.add_argument('-vc','--viterbi_collapsed', default=False, action='store_true',
-                                     help='''Output viterbi statepath expanded single-step bedGraph with provided --prefix''')
-    parser_dump.add_argument('-ve','--viterbi_expanded', default=False, action='store_true',
-                                     help='''Output viterbi statepath collapsed varstep bedGraph with provided --prefix''')
-    parser_dump.add_argument('-cc','--correlations_collapsed', default=False, action='store_true',
-                                     help='''Output bin correlation scores as collapsed varstep bedGraph with provided --prefix''')
-    parser_dump.add_argument('-ce','--correlations_expanded', default=False, action='store_true',
-                                     help='''Output bin correlation scores as expanded single-step bedGraph with provided --prefix''')
-    parser_dump.add_argument('-scc','--smoothed_correlations_collapsed', default=False, action='store_true',
-                                     help='''Output smoothed bin correlation scores as collapsed varstep bedGraph with provided --prefix''')
-    parser_dump.add_argument('-sce','--smoothed_correlations_expanded', default=False, action='store_true',
-                                     help='''Output smoothed bin correlation scores as expanded single-step bedGraph with provided --prefix''')
-    parser_dump.add_argument('-sc','--slopes_collapsed', default=False, action='store_true',
-                                     help='''Output bin slopes as collapsed varstep bedGraph with provided --prefix''')
-    parser_dump.add_argument('-se','--slopes_expanded', default=False, action='store_true',
-                                     help='''Output bin slopes as expanded single-step bedGraph with provided --prefix''')
-
-    parser_dump.set_defaults(func=run_subtool)
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     ## create sub-sommand for puffcn (puff copy number)
