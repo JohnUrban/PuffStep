@@ -1,5 +1,5 @@
 import gzip
-import cPickle as pickle
+import pickle
 
 def load_pickle(inpickle):
     if inpickle.endswith('.gz'):

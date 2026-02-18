@@ -26,7 +26,7 @@
 import sys, os
 import datetime
 from CovBedClass import *
-import cPickle as pickle
+import pickle
 ##f = CovBed(sys.argv[1])
 ##
 ##print f
