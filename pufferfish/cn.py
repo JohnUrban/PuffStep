@@ -56,37 +56,35 @@ def get_initial_probs(args, late):
     if not args.quiet:
         newmsg("Constructing probability matrices...")
 
-    ## CONSTRUCT EMISSIONS/TRANSITION/INITIAL PROBABILITY MATRIXES FOR R
     if args.kmeans is not None:
         nstates = args.kmeans
         data = []
         for chrom in late.count:
             data += list(late.count[chrom])
             
-        r_eprobs, r_tprobs, r_iprobs, np_eprobs, np_tprobs, np_iprobs = help_get_state_emissions_from_kmeans(data, args.kmeans)
+        np_eprobs, np_tprobs, np_iprobs = help_get_state_emissions_from_kmeans(data, args.kmeans)
     else:
         if args.emodel == "discrete":
             nstates = len( args.mu.strip().strip('\\').split(';') )
         else:
             nstates = len( args.mu.strip().strip('\\').split(',') )
-        r_eprobs, r_tprobs, r_iprobs, np_eprobs, np_tprobs, np_iprobs = help_get_prob_matrices_from_params(args.mu,
-                                                                                                           args.sigma,
-                                                                                                           args.mu_scale,
-                                                                                                           args.leave_special_state,
-                                                                                                           args.leave_other,
-                                                                                                           args.special_idx,
-                                                                                                           args.init_special,
-                                                                                                           args.initialprobs,
-                                                                                                           args.transprobs,
-                                                                                                           args.discrete)
+        np_eprobs, np_tprobs, np_iprobs = help_get_prob_matrices_from_params(args.mu,
+                                                                               args.sigma,
+                                                                               args.mu_scale,
+                                                                               args.leave_special_state,
+                                                                               args.leave_other,
+                                                                               args.special_idx,
+                                                                               args.init_special,
+                                                                               args.initialprobs,
+                                                                               args.transprobs,
+                                                                               args.discrete)
 
-    return nstates, r_eprobs, r_tprobs, r_iprobs, np_eprobs, np_tprobs, np_iprobs
-
-
+    return nstates, np_eprobs, np_tprobs, np_iprobs
 
 
-def do_hmm_iter_steps(args, late, nstates, r_eprobs, r_tprobs, r_iprobs, np_eprobs, np_tprobs, np_iprobs, converged=1e-9):
-    #
+
+
+def do_hmm_iter_steps(args, late, nstates, np_eprobs, np_tprobs, np_iprobs, converged=1e-9):
     
     ## HIDDEN MARKOV MODEL: Find most probable path through states
     ## STATE PATH LEARNING AND RETURN:
@@ -99,16 +97,16 @@ def do_hmm_iter_steps(args, late, nstates, r_eprobs, r_tprobs, r_iprobs, np_epro
     for i in range(0,args.iters):
         if not args.quiet:
             newmsg("PARAMETERS: iter " + str(i))
-            newmsg("\nTransition Probs:\n"+str(r_tprobs))
-            newmsg("\nEmission Probs:\n"+str(r_eprobs))
-            newmsg("\nInitial Probs:\n"+str(r_iprobs))
+            newmsg("\nTransition Probs:\n"+str(np_tprobs))
+            newmsg("\nEmission Probs:\n"+str(np_eprobs))
+            newmsg("\nInitial Probs:\n"+str(np_iprobs))
         
         if not args.quiet:
             newmsg("FINDING STATE PATH: iter " + str(i))
 
         ## STEP 1: FIND STATE PATH WITH CURRENT PARAMETERS.
         statepath = hmmR(late, args.path, args.emodel,
-                         eprobs=r_eprobs, tprobs=r_tprobs, iprobs=r_iprobs)
+                         eprobs=np_eprobs, tprobs=np_tprobs, iprobs=np_iprobs)
         
         report(args, late,
                statepath, i)
@@ -119,7 +117,7 @@ def do_hmm_iter_steps(args, late, nstates, r_eprobs, r_tprobs, r_iprobs, np_epro
         log10probs[i] = log10_prob_state_path(late, statepath, np_eprobs, np_tprobs, np_iprobs, args.emodel)
         if not args.quiet:
             newmsg("LOG10 PROB STATEPATH: iter " + str(i) + " = " + str(log10probs[i]))
-        ## CONVERGED?                                                                                   nstates) #r_eprobs, r_tprobs, r_iprobs, np_eprobs, np_tprobs, np_iprobs)
+        ## CONVERGED?
         if args.iters > 1 and i > 0:
             abslogdiff = abs(log10probs[i]-log10probs[i-1])
             if not args.quiet:
@@ -137,14 +135,14 @@ def do_hmm_iter_steps(args, late, nstates, r_eprobs, r_tprobs, r_iprobs, np_epro
             if not args.quiet and args.iters > 1:
                 newmsg("UPDATING PARAMETERS: iter " + str(i))
             ## Update parameters with current state path.
-            r_eprobs, r_tprobs, r_iprobs, np_eprobs, np_tprobs, np_iprobs = updateparameters(late,
-                                                                                             statepath,
-                                                                                             nstates,
-                                                                                             old_np_eprobs=np_eprobs,
-                                                                                             learnpseudo=args.learnpseudo,
-                                                                                             emodel=args.emodel,
-                                                                                             emitpseudo=args.emitpseudo,
-                                                                                             constrainEmit=args.constrainEmit)
+            np_eprobs, np_tprobs, np_iprobs = updateparameters(late,
+                                                               statepath,
+                                                               nstates,
+                                                               old_np_eprobs=np_eprobs,
+                                                               learnpseudo=args.learnpseudo,
+                                                               emodel=args.emodel,
+                                                               emitpseudo=args.emitpseudo,
+                                                               constrainEmit=args.constrainEmit)
         
     return log10probs
 
@@ -182,11 +180,10 @@ def run(parser, args):
         report_counts(args, late)
 
     ## INITIALIZE PARAMETERS
-    nstates, r_eprobs, r_tprobs, r_iprobs, np_eprobs, np_tprobs, np_iprobs = get_initial_probs(args, late)
+    nstates, np_eprobs, np_tprobs, np_iprobs = get_initial_probs(args, late)
 
     ## ITERATE
     log10probs = do_hmm_iter_steps(args, late, nstates,
-                      r_eprobs, r_tprobs, r_iprobs,
                       np_eprobs, np_tprobs, np_iprobs,
                                    args.converge)
 

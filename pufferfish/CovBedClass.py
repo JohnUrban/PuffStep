@@ -2,24 +2,22 @@ import os
 from collections import defaultdict
 import numpy as np
 import pandas as pd
-##np.seterr(divide='raise', invalid='raise')
 np.seterr(divide='ignore', invalid='raise')
-##np.seterr(divide='ignore', invalid='ignore')
-import rpy2.robjects as robjects
-ksmooth = robjects.r['ksmooth']
-kmeans = robjects.r['kmeans']
-intvec = robjects.IntVector
-fltvec = robjects.FloatVector
-matrixr = robjects.r.matrix
-r = robjects.r
-from rpy2.robjects.packages import SignatureTranslatedAnonymousPackage as stap
-from puffR import *
-puffR = stap(puffRstring, 'puffR')
+
+# R/rpy2 imports are deprecated - kmeans functionality has been removed
+# Legacy stubs kept for backwards compatibility but will raise NotImplementedError
+ksmooth = None
+kmeans = None
+intvec = None
+fltvec = None
+matrixr = None
+r = None
+puffR = None
+
 import sys, datetime
 from scipy.stats import spearmanr
 
-import pandas as pd ## 2020 - potentially begin converting to pandas code where better
-#from scipy.stats.mstats import winsorize
+import pandas as pd
 
 
 
