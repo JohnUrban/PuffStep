@@ -1,11 +1,14 @@
 # PuffStep
 PuffStep: HMM-based approach(es) to analyzing genomics data.
 
+## Overview
+PuffStep is a Python 3 toolkit for analyzing genomics data using Hidden Markov Models (HMMs). 
+
 Original application:
 
 	- Copy Number segmentation 
 
-	- e.g. to identify DNA **puff** sequences **for FISH** experiments in Sciara coprophila.
+	- e.g. to identify DNA "Puff" sequences "for FISH" experiments in Sciara coprophila. Hence its original name (pufferfish).
 
 Other applications:
 
@@ -16,8 +19,6 @@ Other applications:
 	- Any genomic enrichment data.
 
 
-## Overview
-PuffStep is a Python 3 toolkit for analyzing genomics data using Hidden Markov Models (HMMs). 
 
 ## Available Sub-commands
 - **normalize** - Normalize bedGraph files using various protocols in preparation for puffcn HMM.
@@ -39,13 +40,18 @@ python setup.py install
 ## Usage
 ```bash
 # View available commands
-python pufferfish/pufferfish_main.py --help
+python puffStep.py --help
+
+# Normalize data - a variety of options offered. Examples:
+python puffStep.py normalize -l late.bedGraph -e early.bedGraph --protocol1 > RCN.protocol1.bedGraph
+
+python puffStep.py normalize -l late.bedGraph -e early.bedGraph --protocol12 --log2 > log2RCN.protocol12.bedGraph
 
 # Run puffcn analysis
-python pufferfish/pufferfish_main.py puffcn -l late_stage.bedGraph -1 --outpfx output
+python puffStep.py puffcn -i RCN.bedGraph > states.bedGraph
 
-# Normalize data
-python pufferfish/pufferfish_main.py normalize -l data.bedGraph -1 -o normalized.bedGraph
+# Find summits within peaks / amplicons / enriched regions.
+python puffStep.py summits --states states.bedGraph -i RCN.bedGraph
 ```
 
 
