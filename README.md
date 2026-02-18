@@ -1,6 +1,21 @@
 # PuffStep
 PuffStep: HMM-based approach(es) to analyzing genomics data.
 
+Original application:
+
+	- Copy Number segmentation 
+
+	- e.g. to identify DNA **puff** sequences **for FISH** experiments in Sciara coprophila.
+
+Other applications:
+
+	- Chromatin modification ChIP-seq segmentation (e.g. H3K27me3)
+
+	- Transcript factor binding ChIP-seq/Cut-and-Run (e.g. EcR)
+
+	- Any genomic enrichment data.
+
+
 ## Overview
 PuffStep is a Python 3 toolkit for analyzing genomics data using Hidden Markov Models (HMMs). 
 
@@ -50,3 +65,40 @@ PuffStep obtained a new name since "pufferfish" is the name of an index used els
 - Removed deprecated sub-commands (mapreads, getcov, findpuffs, dump)
 - Removed geckocorrection and switchblade modules
 - Simplified and cleaned up codebase
+
+
+
+
+PuffStep - PufferFish Version Info:
+============
+- Updated to PuffStep version 1.1.20260218 (02/18/2026)
+
+- Various updates since 2020.
+
+- pufferfish - 0.1.20200925 (09/25/2020)
+	- Many new features and updates including new normalization protocols, discrete HMMs, Viterbi Training, new utilities, segmented motif stuff, etc.
+
+- pufferfish - 0.0.0b (06/01/2020)
+
+	- Now its own Git Repo.
+
+- pufferfish - 0.0.0 (02/15/2016)
+
+	- early development was in subdir of sciaraTools: https://github.com/JohnUrban/sciara-project-tools (see deprecated subdirectory)
+
+
+
+
+
+Please cite PuffStep (pufferfish) as:
+-------------------------------------------
+
+- John Urban's 2016 PhD Thesis from Brown University: 
+
+	- "The genome and DNA puff sequences of the fungus fly, Sciara coprophila, and genome-wide methods for studying DNA replication."
+
+	- https://repository.library.brown.edu/studio/item/bdr:733543/
+
+	- See Chapter 4
+
+
