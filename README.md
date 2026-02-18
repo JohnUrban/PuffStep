@@ -75,8 +75,7 @@ PuffStep obtained a new name since "pufferfish" is the name of an index used els
 
 
 
-PuffStep - PufferFish Version Info:
-============
+## PuffStep - PufferFish Version Info:
 - Updated to PuffStep version 1.1.20260218 (02/18/2026)
 
 - Various updates since 2020.
