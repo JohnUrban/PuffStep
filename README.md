@@ -35,7 +35,7 @@ python pufferfish/pufferfish_main.py normalize -l data.bedGraph -1 -o normalized
 
 
 ## Ancestry
-PuffStep descends from "pufferfish": https://github.com/JohnUrban/pufferfish/tree/master/pufferfish
+PuffStep descends from "pufferfish": https://github.com/JohnUrban/pufferfish
 
 PuffStep is the modernized version, updated to:
 - Use Python 3.6+
