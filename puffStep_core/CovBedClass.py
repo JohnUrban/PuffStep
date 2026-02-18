@@ -139,20 +139,20 @@ class CovBed(object):
 
     def get_mean(self):
         if self.mean is None:
-            counts = np.concatenate(self.count.values())
+            counts = np.concatenate(list(self.count.values()))
             self.mean = float(np.mean(counts))
             self.sd = float(np.std(counts))
         return self.mean
 
     def get_sd(self):
         if self.sd is None:
-            counts = np.concatenate(self.count.values())
+            counts = np.concatenate(list(self.count.values()))
             self.mean = float(np.mean(counts))
             self.sd = float(np.std(counts,ddof=1))
         return self.sd
 
     def _get_median(self):
-        counts = np.concatenate(self.count.values())
+        counts = np.concatenate(list(self.count.values()))
         self.median = float(np.median(counts))
 
 
@@ -395,19 +395,19 @@ class CovBed(object):
     def _get_mad(self, relearn=False):
         if self.median is None or relearn:
             self._get_median()
-        counts = np.concatenate(self.count.values())
+        counts = np.concatenate(list(self.count.values()))
         absdiffs = np.abs((counts - self.get_median()))
         self.mad = float(np.median(absdiffs))
 
     def _get_sum(self):
-        counts = np.concatenate(self.count.values())
+        counts = np.concatenate(list(self.count.values()))
         self.sum = float(np.sum(counts))
 
     def _get_nbins(self):
-        self.nbins = len(np.concatenate(self.count.values()))
+        self.nbins = len(np.concatenate(list(self.count.values())))
 
     def _rank_data(self):
-        counts = np.concatenate(self.count.values())
+        counts = np.concatenate(list(self.count.values()))
         ranks = np.array(pd.Series(counts).rank())
         assert len(counts) == len(ranks)
         self.rankdict = {counts[i]:ranks[i] for i in range(len(counts))}
@@ -416,7 +416,7 @@ class CovBed(object):
             self.rank[chrom] = [self.rankdict[e] for e in self.count[chrom]]
 
     def _rank_standardize_data(self):
-        counts = np.concatenate(self.count.values())
+        counts = np.concatenate(list(self.count.values()))
         ranks = np.array(pd.Series(counts).rank())
         assert len(counts) == len(ranks)
         highest = self.get_nbins()
@@ -814,7 +814,7 @@ class CovBed(object):
     def global_winsorize_counts(self, floor=0.00001, ceiling=0.99999):
         '''Set anything below the value of the floor quantile to that value.
            Set anything above the value of the ceiling quantile to that value.'''
-        counts = np.concatenate(self.count.values())
+        counts = np.concatenate(list(self.count.values()))
         wange = np.quantile(counts, [floor, ceiling])
         for chrom in self.chromosomes:
             self.count[chrom][self.count[chrom] < wange[0]] = wange[0]
@@ -823,7 +823,7 @@ class CovBed(object):
     def local_winsorize_counts(self, floor=0.0001, ceiling=0.9999):
         '''Set anything below the value of the floor quantile to that value.
            Set anything above the value of the ceiling quantile to that value.'''
-        counts = np.concatenate(self.count.values())
+        counts = np.concatenate(list(self.count.values()))
         gwange = np.quantile(counts, [floor, ceiling])
         for chrom in self.chromosomes:
             counts = np.array(self.counts[chrom])
@@ -859,10 +859,10 @@ class CovBed(object):
     def get_params_from_local_medRatioNorm_dict_with_glocalweighting(self, covd, globalweight=10, minlocalbins=3, minpropdata=0.1):
         #covd = output from create_local_medRatioNorm_dict
         #globalweight = how many global_med values to add to a local bin
-        N = len(np.concatenate(covd.values()))
+        N = len(np.concatenate(list(covd.values())))
         pN = round(minpropdata*N)
         #print 'pN', pN
-        global_med = [np.median(np.concatenate(covd.values()))]*globalweight
+        global_med = [np.median(np.concatenate(list(covd.values())))]*globalweight
         #print 'G', global_med
         covmeds = dict()
         latecovs = sorted(covd.keys())
@@ -1000,7 +1000,7 @@ class MultiCovBed(object):
     ## Operations
     ######################
     def _get_median(self, findex):
-        counts = np.concatenate(self.count[findex].values())
+        counts = np.concatenate(list(self.count[findex].values()))
         self.median[findex] = float(np.median(counts))
         
     def get_median(self, findex, refresh=False):

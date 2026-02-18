@@ -13,9 +13,10 @@
 ### in other words, things that appear to have amplified 2 or more times at last stage
 ### for earlier stages, use these coordinates to identify anything inside...
 import sys, datetime
-from CovBedClass import *
-from pk2txt import bdgmsg, newmsg
-from normalize import *
+from puffStep_core.CovBedClass import *
+#from pk2txt import bdgmsg, newmsg
+from puffStep_core.utils import *
+#from puffStep_core.normalize import *
 from pybedtools import *
 from pybedtools.featurefuncs import greater_than
 from io import StringIO
@@ -101,7 +102,12 @@ def run(parser, args):
 ##        protocol=6
 ##    
 ##    late = normalize(latestage=args.latestage, protocol=protocol, earlystage=args.earlystage, pseudo=args.pseudo, bandwidth=args.bandwidth, quiet=args.quiet)
-    protocol = NormalizeProtocol(args)
+    # protocol = NormalizeProtocol(args)
+    input_data = CovBed(args.input_data,
+                  replace=args.replace,
+                  replace_with=args.replace_with,
+                  replace_this=args.replace_this,
+                  stringcols=args.stringcols)
     
     if args.regions:
         # find maximums (summits) within regions given
@@ -114,7 +120,7 @@ def run(parser, args):
         regions = find_candidate_regions(args.states, thresh_state=1, merge1=10e3, minwidth=50e3, merge2=40e3, max_state_thresh=2, internal=0.8)
 
     ##Covert CovBed object to BedTool object
-    a = BedTool( StringIO( protocol.late.get_bdg(bdg=protocol.late.count, collapsed=True) ) )
+    a = BedTool( StringIO( input_data.get_bdg(bdg=input_data.count, collapsed=True) ) )
     ans = summits(a = a, b = regions)
     print(str(ans).strip())
 

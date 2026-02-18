@@ -1,8 +1,9 @@
 import sys, datetime
-from CovBedClass import *
-from pk2txt import bdgmsg, newmsg
-from normalize import NormalizeProtocol #protocol1, protocol2, protocol3, protocol4, protocol5, protocol6, normalize
-from hmm_fxns_for_R import *
+from puffStep_core.CovBedClass import *
+#from pk2txt import bdgmsg, newmsg
+from puffStep_core.utils import *
+#from puffStep_core.normalize import NormalizeProtocol #protocol1, protocol2, protocol3, protocol4, protocol5, protocol6, normalize
+from puffStep_core.hmm_fxns import *
 
 
 
@@ -43,7 +44,7 @@ def report(args, late, statepath, i):
         out.close()
 
 
-def report_counts(args, late):
+def return_input(args, late):
     fn = args.counts + ".bedGraph"
     if not args.quiet:
         bdgmsg("REPORTING:: Final normalized late stage counts", args.collapsed)
@@ -172,18 +173,23 @@ def run(parser, args):
         newmsg("\n\tWARNING WARNING WARNING!!!!!!!!!!!!\n\tIters > 1, but no output prefix specified!\n\tIgnore if that was intentional.\n\tElse restart with --outpfx!\n\tWARNING WARNING WARNING!!!!!!!!!!!!")
 
     ## Transform data with specified normalization protocol (incl no normalization)
-    protocol = NormalizeProtocol(args)
-    late = protocol.late #normalize(latestage=args.latestage, protocol=protocol, earlystage=args.earlystage, pseudo=args.pseudo, bandwidth=args.bandwidth, quiet=args.quiet, impute=args.impute, replace=args.replace, replace_with=args.replace_with, replace_this=args.replace_this)
-
+    #protocol = NormalizeProtocol(args)
+    #late = protocol.late #normalize(latestage=args.latestage, protocol=protocol, earlystage=args.earlystage, pseudo=args.pseudo, bandwidth=args.bandwidth, quiet=args.quiet, impute=args.impute, replace=args.replace, replace_with=args.replace_with, replace_this=args.replace_this)
+    input_data = CovBed(args.input_data,
+                  replace=args.replace,
+                  replace_with=args.replace_with,
+                  replace_this=args.replace_this,
+                  stringcols=args.stringcols)
+    
     ## OPTIONAL REPORTING OF TRANSFORMED DATA
-    if args.counts:
-        report_counts(args, late)
+    if args.return_input:
+        return_input(args, input_data)
 
     ## INITIALIZE PARAMETERS
-    nstates, np_eprobs, np_tprobs, np_iprobs = get_initial_probs(args, late)
+    nstates, np_eprobs, np_tprobs, np_iprobs = get_initial_probs(args, input_data)
 
     ## ITERATE
-    log10probs = do_hmm_iter_steps(args, late, nstates,
+    log10probs = do_hmm_iter_steps(args, input_data, nstates,
                       np_eprobs, np_tprobs, np_iprobs,
                                    args.converge)
 

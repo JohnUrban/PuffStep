@@ -1,6 +1,7 @@
 import sys, datetime
-from CovBedClass import *
-from pk2txt import bdgmsg, newmsg
+from puffStep_core.CovBedClass import *
+#from pk2txt import bdgmsg, newmsg
+from puffStep_core.utils import *
 
 
 class NormalizeProtocol(object):

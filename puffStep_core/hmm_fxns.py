@@ -1,8 +1,9 @@
 from collections import defaultdict
 import numpy as np
 from scipy import stats as sps
-from pk2txt import bdgmsg, newmsg
-import puff
+#from pk2txt import bdgmsg, newmsg
+from puffStep_core.utils import *
+import puffStep_core.puff as puff
 
 ## PREVIOUSLY THIS FUNCTION USED VARIABLES DEFINED INSIDE R.
 ## NEWER VERSION BELOW USES ONLY VARIABLES DEFINED IN PYTHON FIRST.
