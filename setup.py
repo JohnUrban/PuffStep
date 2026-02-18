@@ -15,7 +15,7 @@ setup(
         name="pufferfish",
         version=version,
         install_requires=install_requires,
-        requires = ['python (>=2.7, <3.0)'],
+        requires = ['python (>=3.6)'],
         packages=['pufferfish'],
         author="John Urban",
         description='HMM-based approach(es) to finding and analyzing developmentally regulated amplicons (genomic sites that are programmed to increase in copy number over time).',
