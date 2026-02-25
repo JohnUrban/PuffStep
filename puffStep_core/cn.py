@@ -53,7 +53,8 @@ def return_input(args, late):
     o.write(late.get_bdg(late.count, args.collapsed))
     o.close()
 
-def get_initial_probs(args, late):
+#def get_initial_probs(args, late):
+def get_starting_hmm_params(args, late):
     if not args.quiet:
         newmsg("Constructing probability matrices...")
 
@@ -78,7 +79,9 @@ def get_initial_probs(args, late):
                                                                                args.init_special,
                                                                                args.initialprobs,
                                                                                args.transprobs,
-                                                                               args.discrete)
+                                                                               args.discrete,
+                                                                               args.exp_decay,
+                                                                               args.exp_decay_scale)
 
     return nstates, np_eprobs, np_tprobs, np_iprobs
 
@@ -186,7 +189,7 @@ def run(parser, args):
         return_input(args, input_data)
 
     ## INITIALIZE PARAMETERS
-    nstates, np_eprobs, np_tprobs, np_iprobs = get_initial_probs(args, input_data)
+    nstates, np_eprobs, np_tprobs, np_iprobs = get_starting_hmm_params(args, input_data)
 
     ## ITERATE
     log10probs = do_hmm_iter_steps(args, input_data, nstates,

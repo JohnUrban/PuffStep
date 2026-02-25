@@ -257,27 +257,83 @@ def get_emission_probs(mu=[1,2,4,8,16,32,64],sig=None, discrete=False):
 ##    rowsvecr = fltvec(rowsvec)
 ##    return matrixr(rowsvecr, nrow=nstates, byrow=True)
 
-def get_transition_probs(nstates=7, special_state_idx=0, leave_special=0.001, leave_non_to_special=0.001, leave_non_to_othernon=0.001):
+def get_simple_transition_probs(nstates=7, special_state_idx=0, leave_special=0.001, leave_non_to_special=0.001, leave_non_to_othernon=0.001):
     stay_special = 1 - (leave_special * (nstates-1))
     stay_non = 1 - leave_non_to_special - (leave_non_to_othernon * (nstates-2))
-    nonspecial = list(range(nstates))
-    nonspecial.pop(special_state_idx)
+    # nonspecial = list(range(nstates)) ## ERASE LINE???
+    # nonspecial.pop(special_state_idx) ## ERASE LINE???
     np_tprobs = np.zeros([nstates,nstates], dtype=float)
-    
+
+    # Matrix is first designed with probabilities reflecting non-special state moves: non-to-othernon, non-to-special, and non-to-selfnon. 
     for i in range(nstates):
+        # matrix row i is initialized with leave_non_to_othernon for all other states
         np_tprobs[i,] = leave_non_to_othernon
+        # then row i at special state column is updated with leave_non_to_special.
         np_tprobs[i, special_state_idx] = leave_non_to_special
+        # then row i at itself column is updated with stay_non.
         np_tprobs[i,i] = stay_non
 
+    # Next, the matrix is updated at the special state row to reflect leave_special for all states.
+    # from special state to any other state
     np_tprobs[special_state_idx,] = leave_special
+
+    # Finally, the matrix is updated at the special state row and column to reflect stay_special for the special state self-transition.
+    # from special state to itself
     np_tprobs[special_state_idx, special_state_idx] = stay_special
+
+    ## normalize to 1
     for i in range(nstates):
         np_tprobs[i,] = np_tprobs[i,]/sum(np_tprobs[i,])
+    
     return np_tprobs
 
 def get_transition_probs_from_str(transprobstr):
     np_tprobs = np.array([[float(j) for j in e.split(',')] for e in transprobstr.split(';')])
     return np_tprobs
+
+def get_transition_probs_exponential_decay(nstates=7, special_state_idx=0, leave_special=0.001, leave_non_to_special=0.001, leave_non_to_othernon=0.001, exp_decay_scale=1.0): ##, decay_rate=1):
+    assert exp_decay_scale > 0
+    leave_non = np.mean([leave_non_to_special, leave_non_to_othernon]) ## if --leave_other gave only one number then this is that number; if --leave_other gave two numbers then this is the average of those two numbers. 
+    stay_special = 1 - (leave_special * (nstates-1))
+    stay_non = 1 - leave_non ##leave_non_to_special - (leave_non_to_othernon * (nstates-2))
+    np_tprobs = np.zeros([nstates,nstates], dtype=float)
+    
+    for i in range(nstates):
+        for j in range(nstates):
+            if i == special_state_idx:
+                if j == special_state_idx:
+                    np_tprobs[i,j] = stay_special
+                else:
+                    distance = abs(j - i) * exp_decay_scale
+                    np_tprobs[i,j] = leave_special ** distance
+            else:
+                if j == i:
+                    np_tprobs[i,j] = stay_non
+                else:
+                    distance = abs(j - i) * exp_decay_scale
+                    # distance = (decay_rate ** (distance-1)) ## decay with distance from current state
+                    np_tprobs[i,j] = leave_non_to_othernon ** distance
+
+    ## normalize to 1
+    for i in range(nstates):
+        np_tprobs[i,] = np_tprobs[i,]/sum(np_tprobs[i,])
+    return np_tprobs
+
+
+def get_transition_probs(nstates=7, special_state_idx=0, leave_special=0.001, leave_non_to_special=0.001, leave_non_to_othernon=0.001, exp_decay=False, exp_decay_scale=1.0):
+    
+    if exp_decay:
+        ## Here, leave probabilities decay with distance to the given state. So, for example, if you are in state 3, you are more likely to transition to state 4 than to state 7.
+        np_tprobs = get_transition_probs_exponential_decay(nstates=nstates, special_state_idx=special_state_idx, leave_special=leave_special, leave_non_to_special=leave_non_to_special, leave_non_to_othernon=leave_non_to_othernon, exp_decay_scale=exp_decay_scale)
+        ###################################################nstates=7, special_state_idx=0, leave_special=0.001, leave_non_to_special=0.001, leave_non_to_othernon=0.001
+    else:
+        np_tprobs = get_simple_transition_probs(nstates=nstates, special_state_idx=special_state_idx, leave_special=leave_special, leave_non_to_special=leave_non_to_special, leave_non_to_othernon=leave_non_to_othernon)
+    
+    return np_tprobs
+
+
+
+    
 
 
 def get_initial_probs(nstates=7, special_state_idx=0, special_state=0.997, other_states=None, inits=None):
@@ -359,7 +415,7 @@ def help_get_emission_probs(mu, sigma=None, mu_scale=None, discrete=False):
     return np_eprobs, nstates
 
 
-def help_get_transition_probs(leave_special_state, leave_other, special_state_idx, nstates, transprobs):
+def help_get_transition_probs(leave_special_state, leave_other, special_state_idx, nstates, transprobs, exp_decay, exp_decay_scale):
     '''
         leave_special_state is probability of leaving special state (e.g. CN=1) - can make it same as others.
         leave_other is probability of leaving a non-special state
@@ -398,7 +454,9 @@ def help_get_transition_probs(leave_special_state, leave_other, special_state_id
                                       special_state_idx=special_state_idx,
                                       leave_special=leave_special_state,
                                       leave_non_to_special= leave_non_to_special,
-                                      leave_non_to_othernon=leave_non_to_other)
+                                      leave_non_to_othernon=leave_non_to_other,
+                                      exp_decay=exp_decay,
+                                      exp_decay_scale=exp_decay_scale)
     return np_tprobs
 
 
@@ -412,9 +470,9 @@ def help_get_initial_probs(nstates, special_state_idx, init_special, initialprob
     return np_iprobs
 
 
-def help_get_prob_matrices_from_params(mu, sigma, mu_scale, leave_special_state, leave_other, special_idx, init_special, initialprobs, transprobs, discrete=False):
+def help_get_prob_matrices_from_params(mu, sigma, mu_scale, leave_special_state, leave_other, special_idx, init_special, initialprobs, transprobs, discrete=False, exp_decay=False, exp_decay_scale=1.0):
     np_eprobs, nstates = help_get_emission_probs(mu, sigma, mu_scale, discrete)
-    np_tprobs = help_get_transition_probs(leave_special_state, leave_other, special_idx, nstates, transprobs)
+    np_tprobs = help_get_transition_probs(leave_special_state, leave_other, special_idx, nstates, transprobs, exp_decay=exp_decay, exp_decay_scale=exp_decay_scale)
     np_iprobs = help_get_initial_probs(nstates, special_idx, init_special, initialprobs)
     return np_eprobs, np_tprobs, np_iprobs
 

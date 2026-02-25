@@ -508,8 +508,23 @@ OR
 
 The probability of staying in these states is the complement: 1-p1-p2
 
+If --exp_decay is used, then the probability of leaving other states will be calculated with an exponential decay function based on the distance from the special state.
+In that case, only one number is expected, but two are tolerated: when one number is given, leave_other is that number, but if two are inadvertently given, it uses the average of the two.
+
 NOTE: the program forces the transition probabilities of a given state to sum to 1.
 ''')
+
+    parser_puffcn.add_argument('--exp_decay', action='store_true', default=False,
+                               help='''Uses --leave_special_state and --leave_other as baseline transition probabilites to neighbor states and decay with distance between states as p^distance.
+    This is useful for copy number variant analyses where you expect transitions to be more likely between states that are closer in copy number than those that are farther apart.
+    For example, in a 7-state model with CN=1 as the special state, the probability of transitioning from CN=1 to CN=2 would be higher than transitioning from CN=1 to CN=4, which would be higher than transitioning from CN=1 to CN=8, etc.
+    The same would be true for transitioning from CN=2 to CN=1 and CN=3 vs CN=4 and higher, etc.''')
+
+    parser_puffcn.add_argument('--exp_decay_scale', type=float, default=1.0,
+                               help='''When --exp_decay is used, transition probabilities to other states are calculated as p^distance, where p is the baseline probability given by --leave_special_state and --leave_other, and distance is the absolute difference in state indices (e.g. distance from CN=1 to CN=2 is 1, from CN=1 to CN=4 is 2, etc.).
+This option allows you to scale the distance by a factor before applying the exponential decay, which can make the decay more or less steep. For example, if exp_decay_scale is 0.5, then the distance used in the decay function would be 0.5 * distance, which would make the decay less steep (i.e. more likely to transition to farther states than with a scale of 1.0). 
+If exp_decay_scale is 2.0, then the distance used in the decay function would be 2.0 * distance, which would make the decay more steep (i.e. less likely to transition to farther states than with a scale of 1.0). Default is 1.0, which means no scaling of the distance. 
+This can be any float greater than 0. A value less than 1 will make the decay less steep, while a value greater than 1 will make the decay more steep.''')
 
     parser_puffcn.add_argument('--initialprobs', type=str, default=None,
                                help='''PuffCN has been optimized for mapping DNA puffs in the fungus fly.
@@ -578,6 +593,7 @@ If an out prefix is not specified and iters > 1, you will be warned/reminded in 
 ''')
 
     
+
     #######################################################
     ## SET DEFAULTS
     parser_puffcn.set_defaults(func=run_subtool)
@@ -613,19 +629,6 @@ If an out prefix is not specified and iters > 1, you will be warned/reminded in 
     parser_summits.add_argument('-i','--input_data', type=str, required=True,
                                 help='''Provide path to bedGraph file that will be used to find summit bins in specified regions. Common input: the same bedGraph made from normalize sub-command) with input data (emissions over genome such as RCN or log2RCN) that HMM was run on.''')
 
-    parser_summits.add_argument('--replace', action='store_true', default=False,
-                                        help='''Turn on "replace" functionality. By default this will replace '.' in the count column of bedGraphs with '0'.
-Use --replace_with and --replace_this to change.''')
-    parser_summits.add_argument('--replace_this', type=str, default='.',
-                                        help='''Used with --replace. Specify the character in count column to replace. Default = '.' ''')
-    parser_summits.add_argument('--replace_with', type=str, default='0',
-                                        help='''Used with --replace. Specify the character to replace the --replace_this character with.
-Must be a string that can be converted to a float. Default = '0' ''')
-
-
-    parser_summits.add_argument('--stringcols', action='store_true', default=False,
-                               help='''Just treat columns other than 4 as strings...''')
-    
     parser_summits_regions = parser_summits.add_mutually_exclusive_group(required=True)
 
     parser_summits_regions.add_argument('--regions', type=str, default=False,
@@ -634,6 +637,8 @@ Must be a string that can be converted to a float. Default = '0' ''')
                                         help=''' Provide statepath bedGraph output by "cn" sub-command. Peak regions will be found automatically.''')
     parser_summits.add_argument('--thresh_state', type=int, default=1,
                                 help=''' Used with --states. Only consider regions with states higher than state given. Default: 1.''')
+
+    
     parser_summits.add_argument('--merge1', type=float, default=10e3,
                                 help = '''Used with --states. After extracting only bins with higher state value than --thresh_state, merge bins if they are with in --merge1 bp from each other. Default: 10e3.''')
     parser_summits.add_argument('--minwidth', type=float, default=50e3,
@@ -646,6 +651,20 @@ only keep merged regions > --minwidth.''')
                                 help = ''' After (i) extracting bins with states > --thresh_state, (ii) merging remaining bins that are within --merge1 bp of each other,
 (iii) retaining only merged regions > --minwidth, (iv) merging filtered regions that are within --merge2 bp of each other,
 only retain the remaining merged regions if their maximum state is > --max_State_thresh''')
+
+
+    parser_summits.add_argument('--stringcols', action='store_true', default=False,
+                               help='''Just treat columns other than 4 as strings...''')
+    
+    parser_summits.add_argument('--replace', action='store_true', default=False,
+                                        help='''Turn on "replace" functionality. By default this will replace '.' in the count column of bedGraphs with '0'.
+Use --replace_with and --replace_this to change.''')
+    parser_summits.add_argument('--replace_this', type=str, default='.',
+                                        help='''Used with --replace. Specify the character in count column to replace. Default = '.' ''')
+    parser_summits.add_argument('--replace_with', type=str, default='0',
+                                        help='''Used with --replace. Specify the character to replace the --replace_this character with.
+Must be a string that can be converted to a float. Default = '0' ''')
+
 
     
     parser_summits.set_defaults(func=run_subtool)
