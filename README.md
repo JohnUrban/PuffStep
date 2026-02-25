@@ -1,3 +1,5 @@
+![logo](/doc/logo1-v1.png)
+
 # PuffStep
 PuffStep: HMM-based approach(es) to analyzing genomics data.
 
@@ -55,8 +57,14 @@ python puffStep.py summits --states states.bedGraph -i RCN.bedGraph
 ```
 
 
+![logo](/doc/logo2-v1.png)
+
+
 ## Ancestry
 PuffStep descends from "pufferfish": https://github.com/JohnUrban/pufferfish
+
+![logo](/doc/pufferfish-logo.png)
+
 
 PuffStep is the modernized version, updated to:
 - Use Python 3.6+
@@ -106,4 +114,6 @@ Please cite PuffStep (pufferfish) as:
 
 	- See Chapter 4
 
+
+![logo](/doc/logo3-v1.png)
 
